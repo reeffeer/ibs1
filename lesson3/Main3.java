@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Currency;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Main3 {
@@ -17,7 +19,8 @@ public class Main3 {
         //System.out.println(companies);
 
         //showCompanies(companies);
-        showCompanyNamesFoundations(companies);
+        //showCompanyNamesFoundations(companies);
+        showExpiredSecurities(companies);
     }
 
     public static void showCompanies (Companies companies) {
@@ -46,12 +49,20 @@ public class Main3 {
         }
     }
 
-    public static void showExpiredSecurities(List<Date> foundations) {
+    public static void showExpiredSecurities(Companies companies) {
+        AtomicInteger count = new AtomicInteger();
+        Date currentDate = new Date();
+        companies.getCompanies().stream().forEach(company -> company.getSecurities().stream()
+                .filter(security -> security.getDate().before(currentDate))
+                .forEach(security -> System.out.println("Code - " + security.getCode() +
+                        " Expiration date - " + security.getDate() +
+                        " Owner company - " + security.getSecurityName())));
+        System.out.println("\nTotal expired securities " + getCountExpiredSecurities(companies, count, currentDate));
+    }
 
-        for (int i = 0; i < foundations.size(); i++) {
-            Date date = foundations.get(i);
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/uu");
-            System.out.println(format.format(date));
-        }
+    public static AtomicInteger getCountExpiredSecurities (Companies companies, AtomicInteger count, Date currentDate) {
+        companies.getCompanies().stream().forEach(company -> company.getSecurities().stream().filter(security -> security.getDate().before(currentDate))
+                .forEach(security -> count.getAndIncrement()));
+        return count;
     }
 }
